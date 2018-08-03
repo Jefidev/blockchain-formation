@@ -41,6 +41,27 @@ class Blockchain(object):
 
         return self.last_block['index'] + 1
 
+
+    def proof_of_work(self, last_proof):
+        # Boucle pour trouver la preuve
+        proof = 0
+
+        while not self.valid_proof(proof, last_proof):
+            proof += 1
+
+        return proof
+    
+
+
+    def valid_proof(self, proof, last_proof):
+        # Verifie que la proof a bien été trouvée
+        # hash(proof concat last_proof) commence par 00
+
+        guess = "{}{}".format(proof, last_proof)
+        guess_hash = hashlib.sha256(guess.encode("utf8")).hexdigest()
+        return guess_hash[:2] == "00"
+
+
     @staticmethod
     def hash(block):
         block_string = json.dumps(block, sort_keys=True).encode()
@@ -49,22 +70,3 @@ class Blockchain(object):
 
     def last_block(self):
         return self.chain[-1]
-
-
-
-
-### EXEMPLE PROOF OF WORK
-
-x = 4
-y = 0
-
-tmp = str(x*y).encode('utf8')
-h = hashlib.sha256(tmp).hexdigest()
-
-while h[:2] != "0":
-    y += 1
-    tmp = str(x*y).encode('utf8')
-    h = hashlib.sha256(tmp).hexdigest()
-
-print(y)
-print(h)
