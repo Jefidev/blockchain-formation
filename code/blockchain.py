@@ -1,5 +1,6 @@
 from time import time
-
+import json
+import hashlib
 
 class Blockchain(object):
 
@@ -7,9 +8,27 @@ class Blockchain(object):
         self.chain = []
         self.current_transactions = []
 
-    def new_block(self):
+        # Creation du block initial (Genesis block)
+        self.new_block(previous_hash = 1, proof = 100)
+
+
+    def new_block(self, proof):
         # Creer un nouveau block dans la chaine
-        pass
+
+        block = {
+            'index': len(self.chain) + 1,
+            'timestamp': time(),
+            'transactions': self.current_transactions,
+            'proof': proof,
+            'previous_hash': self.hash(self.last_block())
+        }
+
+        # Reset les transactions en attente
+        self.current_transactions = []
+
+        self.chain.append(block)
+        return block
+
 
     def new_transaction(self, auteur, oeuvre):
         # Creer une nouvelle transaction dans la liste
@@ -24,9 +43,9 @@ class Blockchain(object):
 
     @staticmethod
     def hash(block):
-        # Hash un block
-        pass
+        block_string = json.dumps(block, sort_keys=True).encode()
+        return hash.sha256(block_string).hexdigest()
+    
 
     def last_block(self):
-        # Retourne le dernier block de la chaine
-        pass
+        return self.chain[-1]
