@@ -44,8 +44,27 @@ class Blockchain(object):
     @staticmethod
     def hash(block):
         block_string = json.dumps(block, sort_keys=True).encode()
-        return hash.sha256(block_string).hexdigest()
-    
+        return hashlib.sha256(block_string).hexdigest()
+
 
     def last_block(self):
         return self.chain[-1]
+
+
+
+
+### EXEMPLE PROOF OF WORK
+
+x = 4
+y = 0
+
+tmp = str(x*y).encode('utf8')
+h = hashlib.sha256(tmp).hexdigest()
+
+while h[:2] != "0":
+    y += 1
+    tmp = str(x*y).encode('utf8')
+    h = hashlib.sha256(tmp).hexdigest()
+
+print(y)
+print(h)
