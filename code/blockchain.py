@@ -1,7 +1,7 @@
+from time import time
 
 
-
-class Blockchain(Object):
+class Blockchain(object):
 
     def __init__(self):
         self.chain = []
@@ -11,9 +11,16 @@ class Blockchain(Object):
         # Creer un nouveau block dans la chaine
         pass
 
-    def new_transaction(self):
+    def new_transaction(self, auteur, oeuvre):
         # Creer une nouvelle transaction dans la liste
-        pass
+
+        self.current_transactions.append({
+            'auteur': auteur,
+            'oeuvre': oeuvre,
+            'time': time()
+        })
+
+        return self.last_block['index'] + 1
 
     @staticmethod
     def hash(block):
