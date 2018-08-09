@@ -90,7 +90,22 @@ blockchain = Blockchain()
 
 @app.route("/mine", methods=["GET"])
 def mine():
-    return "Hard work"
+
+    last_block = blockchain.last_block()
+    last_proof = last_block["proof"]
+    proof = blockchain.proof_of_work(last_proof)
+
+    # Ajout d'un reward pour le mineur dans les transactions
+
+    previous_hash = blockchain.hash(last_block)
+    block = blockchain.new_block(proof, previous_hash)
+
+    response = {
+        "message": "You forged a new block :D",
+        "block": block
+    }
+
+    return jsonify(response), 200
 
 
 
@@ -109,7 +124,6 @@ def new_transaction():
 
     except KeyError as e:
         return "JSON key missing", 400
-
 
 
 
