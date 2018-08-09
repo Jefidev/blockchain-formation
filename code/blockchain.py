@@ -3,7 +3,8 @@ import json
 import hashlib
 
 from uuid import uuid4
-from flask import Flask
+from flask import Flask, request
+from flask.json import jsonify
 from textwrap import dedent
 
 
@@ -44,7 +45,7 @@ class Blockchain(object):
             'time': time()
         })
 
-        return self.last_block['index'] + 1
+        return self.last_block()['index'] + 1
 
 
     def proof_of_work(self, last_proof):
@@ -92,12 +93,33 @@ def mine():
     return "Hard work"
 
 
+
 @app.route("/transaction/new", methods=['POST'])
 def new_transaction():
-    return "Adding transaction"
+    values = request.get_json()
+    try:
+        #Creation de la transaction
+        block_index = blockchain.new_transaction(values['author'], values["artwork"])
+
+        response = {
+            'message': "Your artwork will be saved in block {}".format(block_index)
+        }
+
+        return jsonify(response), 200
+
+    except KeyError as e:
+        return "JSON key missing", 400
+
+
+
 
 @app.route("/chain", methods=['GET'])
 def all_chain():
-    return "List of block"
+    chain = {
+        'chain': blockchain.chain,
+        'length': len(blockchain.chain)
+    }
+    return jsonify(chain), 200
+
 
 app.run(host='0.0.0.0', port=4802)
