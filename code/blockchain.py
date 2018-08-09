@@ -2,6 +2,11 @@ from time import time
 import json
 import hashlib
 
+from uuid import uuid4
+from flask import Flask
+from textwrap import dedent
+
+
 class Blockchain(object):
 
     def __init__(self):
@@ -12,7 +17,7 @@ class Blockchain(object):
         self.new_block(previous_hash = 1, proof = 100)
 
 
-    def new_block(self, proof):
+    def new_block(self, proof, previous_hash = None):
         # Creer un nouveau block dans la chaine
 
         block = {
@@ -20,7 +25,7 @@ class Blockchain(object):
             'timestamp': time(),
             'transactions': self.current_transactions,
             'proof': proof,
-            'previous_hash': self.hash(self.last_block())
+            'previous_hash': previous_hash or self.hash(self.last_block())
         }
 
         # Reset les transactions en attente
@@ -50,7 +55,7 @@ class Blockchain(object):
             proof += 1
 
         return proof
-    
+
 
 
     def valid_proof(self, proof, last_proof):
@@ -70,3 +75,29 @@ class Blockchain(object):
 
     def last_block(self):
         return self.chain[-1]
+
+###################### BLOCKCHAIN API #####################
+
+
+app = Flask(__name__)
+
+#Identifier du noeud courant
+node_id = str(uuid4()).replace("-", "")
+
+blockchain = Blockchain()
+
+
+@app.route("/mine", methods=["GET"])
+def mine():
+    return "Hard work"
+
+
+@app.route("/transaction/new", methods=['POST'])
+def new_transaction():
+    return "Adding transaction"
+
+@app.route("/chain", methods=['GET'])
+def all_chain():
+    return "List of block"
+
+app.run(host='0.0.0.0', port=4802)
