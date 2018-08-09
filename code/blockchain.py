@@ -7,12 +7,16 @@ from flask import Flask, request
 from flask.json import jsonify
 from textwrap import dedent
 
+from urllib.parse import urlparse
+
+
 
 class Blockchain(object):
 
     def __init__(self):
         self.chain = []
         self.current_transactions = []
+        self.nodes = set()
 
         # Creation du block initial (Genesis block)
         self.new_block(previous_hash = 1, proof = 100)
@@ -68,11 +72,26 @@ class Blockchain(object):
         return guess_hash[:2] == "00"
 
 
+    def register_node(self, address):
+        # Ajoute un noeud a la liste des noeuds dispo
+        url = urlparse(address)
+        self.nodes.add(url.netloc)
+
+
+    def valid_chain(self, chain):
+        # Verifie si une chaine est valide
+        pass
+
+
+    def resolve_conflict(self):
+        # Decider quel blockchain garder dans notre reseau (plus longue)
+        pass
+
+
     @staticmethod
     def hash(block):
         block_string = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
-
 
     def last_block(self):
         return self.chain[-1]
