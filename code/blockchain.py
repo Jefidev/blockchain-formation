@@ -99,7 +99,7 @@ class Blockchain(object):
 
 
 
-    def resolve_conflict(self):
+    def resolve_conflicts(self):
         # Decider quel blockchain garder dans notre reseau (plus longue)
 
         new_chain = None
@@ -189,6 +189,42 @@ def all_chain():
         'length': len(blockchain.chain)
     }
     return jsonify(chain), 200
+
+
+
+@app.route('/nodes/register', methods=['POST'])
+def register_node():
+    nodes = request.get_json().get('nodes')
+
+    if nodes is None:
+        return "ERROR: No node provided", 400
+
+    for node in nodes:
+        blockchain.register_node(node)
+
+    response = {
+        'message': "New nodes added to network",
+        'full_list': list(blockchain.nodes)
+    }
+
+    return response, 200
+
+@app.route('/nodes/resolve', methods=['GET'])
+def consensus():
+    replaced = blockchain.resolve_conflicts()
+
+    if replaced:
+        response = {
+            'message': 'Our chain was replaced',
+            'new_chain': blockchain.chain
+        }
+    else:
+        response = {
+            'message': 'Our chain is authoritative',
+            'chain': blockchain.chain
+        }
+
+    return jsonify(response), 200
 
 
 app.run(host='0.0.0.0', port=4802)
