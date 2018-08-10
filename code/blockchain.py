@@ -8,6 +8,8 @@ from flask.json import jsonify
 from textwrap import dedent
 
 from urllib.parse import urlparse
+import requests
+
 
 
 
@@ -79,13 +81,47 @@ class Blockchain(object):
 
 
     def valid_chain(self, chain):
-        # Verifie si une chaine est valide
-        pass
+        # Verifie si une chaine est valide en la parcourant
+        last_block, *tail = chain
+
+        for block in tail:
+            #Hash correcte
+            if block['previous_hash'] != self.hash(last_block):
+                return False
+
+            #Proof of work correcte
+            if not self.valid_proof(block['proof'], last_block['proof']):
+                return False
+
+            last_block = block
+
+        return True
+
 
 
     def resolve_conflict(self):
         # Decider quel blockchain garder dans notre reseau (plus longue)
-        pass
+
+        new_chain = None
+        max_length = len(self.chain)
+
+        for node in self.nodes:
+            response = requests.get("http://{}/chain".format(node))
+
+            if requests.status_code == 200:
+                length = requests.json()['length']
+                chain = requests.json()['chain']
+
+                if length > max_length and self.valid_chain(chain):
+                    max_length = length
+                    new_chain = chain
+
+        # On remplace la chain si besoin
+        if new_chain:
+            self.chain = new_chain
+            return True
+
+        return False
 
 
     @staticmethod
