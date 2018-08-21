@@ -108,9 +108,9 @@ class Blockchain(object):
         for node in self.nodes:
             response = requests.get("http://{}/chain".format(node))
 
-            if requests.status_code == 200:
-                length = requests.json()['length']
-                chain = requests.json()['chain']
+            if response.status_code == 200:
+                length = response.json()['length']
+                chain = response.json()['chain']
 
                 if length > max_length and self.valid_chain(chain):
                     max_length = length
@@ -207,7 +207,7 @@ def register_node():
         'full_list': list(blockchain.nodes)
     }
 
-    return response, 200
+    return jsonify(response), 200
 
 @app.route('/nodes/resolve', methods=['GET'])
 def consensus():
